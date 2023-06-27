@@ -67,3 +67,38 @@ That being said there are many imperfections and areas of improvement to make th
 I'm making this repo public so maybe I can help other travelers and learn more from other possible contributors. 
 
 ### Happy flying!!!
+
+### Example output:
+
+```
+DEN to MKE: Milwaukee available:
+flight 1. 1 Stop LAS
+        Date: 06-27
+        Depart: 10:05 AM
+        Total flight time: 9 hrs 35 min
+Price: $24.21
+flight 2. 1 Stop LAS
+        Date: 06-27
+        Depart: 12:00 PM
+        Total flight time: 7 hrs 40 min
+Price: $24.21
+flight 3. 1 Stop LAS
+        Date: 06-27
+        Depart: 5:35 AM
+        Total flight time: 14 hrs 5 min
+Price: $29.81
+flight 4. 1 Stop LAS
+        Date: 06-27
+        Depart: 7:53 AM
+        Total flight time: 11 hrs 47 min
+Price: $29.81
+DEN to MKE: 4 Go Wild flights available for Jun 27, 2023
+
+52 destinations found from DEN:
+NAS: Bahamas
+PUJ: Punta Cana, DR
+GUA: Guatemala
+MBJ: St. James
+CUN: Cancun, MX
+....
+```
