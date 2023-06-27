@@ -1,6 +1,7 @@
 import random, time, requests, json, html
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
+import browsercookie
 
 # TODO 
 # Speed up processing time
@@ -116,18 +117,42 @@ def get_flight_html(origin, destinations, date, session):
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:89.0) Gecko/20100101 Firefox/89.0",
         "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
     ]
+
     f = open("destinations.txt", "a")
     f.write("Origin: " + origin + "\n")
     for dest in destinations.keys():
         # Choose a random User-Agent header
         header = {
-            "User-Agent": random.choice(user_agents)
+            "User-Agent": random.choice(user_agents),
         }
+        cj = browsercookie.load()
+
+        time.sleep(random.uniform(0.5,1.5))
+        # Get schedule data for the route
+        schedule_url = f"https://booking.flyfrontier.com/Flight/RetrieveSchedule?calendarSelectableDays.Origin={origin}&calendarSelectableDays.Destination={dest}"
+        schedule_response = requests.Session().get(schedule_url, headers=header, cookies=cj)
+        
+        if schedule_response.status_code == 200:
+            schedule_data = schedule_response.json()
+            disabled_dates = schedule_data['calendarSelectableDays']['disabledDates']
+            last_available_date = schedule_data['calendarSelectableDays']['lastAvailableDate']
+
+            # Convert the input date to the same format as the disabled dates list
+            formatted_date = datetime.strptime(date.replace('%20', ' '), '%b %d, %Y').strftime('%-m/%-d/%Y')
+
+            # Check if the date is in the list of disabled dates
+            if formatted_date in disabled_dates or last_available_date == '0001-01-01 00:00:00':
+                print(f"No flights available on {formatted_date} from {origin} to {dest}. Date skipped.")
+                continue
+        else:
+            print(f"Problem accessing URL: code {schedule_response.status_code}\n url = " + schedule_url)
+
+        
         # Mimic human-like behavior by adding delays between requests
         delay = random.uniform(2, 5)  # Random delay between 2 to 5 seconds
         time.sleep(delay)
         url = f"https://booking.flyfrontier.com/Flight/InternalSelect?o1={origin}&d1={dest}&dd1={date}&ADT=1&mon=true&promo="
-        response = session.get(url, headers=header)
+        response = session.get(url, headers=header, cookies=cj)
         if (response.status_code == 200):
             decoded_data = extract_html(response)
             if (decoded_data != 'NoneType'):
@@ -135,7 +160,7 @@ def get_flight_html(origin, destinations, date, session):
                 f.write(dest + ",")
         else:
             print(f"Problem accessing URL: code {response.status_code}\n url = " + url)
-            break
+            continue
     f.close()
         
 def extract_json(flight_data, origin, dest, date):
