@@ -129,7 +129,7 @@ def get_flight_html(origin, destinations, date, session, cjs, start_index=0):
         if dest == origin:
             print('cannot search between identical origin and destination')
             continue
-        
+
         # Choose a random User-Agent header
         header = {
             "User-Agent": random.choice(user_agents),
